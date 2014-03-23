@@ -79,14 +79,6 @@ class Node {
 		entries[0] = entry;
 		size = 1;
 	}
-
-public:
-	Node(Node* parent, Entry* entry) {
-		init(parent, entry);
-	}
-	Node(Entry* entry) {
-		init(NULL, entry);
-	}
 	bool contains(Entry* entry) {
 		for (int i = 0; i < 4; i++) {
 			if (entries[4]->equals(entry)) {
@@ -95,35 +87,13 @@ public:
 		}
 		return false;
 	}
-	void printInorder() {
-		cout << "[";
-		for (int i = 0; i < size; i++) {
-			if(!isLeaf()) {
-				this->children[i]->printInorder();
-			}
-			cout << "." << entries[i]->getKey() << ".";
-		}
-		if(!isLeaf()) {
-			this->children[size]->printInorder();
-		}
-		cout << "]";
+
+public:
+	Node(Node* parent, Entry* entry) {
+		init(parent, entry);
 	}
-	bool isLeaf() {
-		return children[0] == NULL;
-	}
-	Node* getParent() {
-		return parent;
-	}
-	Node* descend(Entry* entry) {
-		if (isLeaf()) {
-			return NULL;
-		}
-		for (int i = 0; i < size; i++) {
-			if (entries[i]->compareTo(entry) > 0) {
-				return children[i];
-			}
-		}
-		return children[size];
+	Node(Entry* entry) {
+		init(NULL, entry);
 	}
 	void split() {
 		Node* left = new Node(this, entries[0]);
@@ -171,6 +141,36 @@ public:
 	 */
 	bool isFull() {
 		return this->size == 3;
+	}
+	bool isLeaf() {
+		return children[0] == NULL;
+	}
+	Node* getParent() {
+		return parent;
+	}
+	Node* descend(Entry* entry) {
+		if (isLeaf()) {
+			return NULL;
+		}
+		for (int i = 0; i < size; i++) {
+			if (entries[i]->compareTo(entry) > 0) {
+				return children[i];
+			}
+		}
+		return children[size];
+	}
+	void printInorder() {
+		cout << "[";
+		for (int i = 0; i < size; i++) {
+			if(!isLeaf()) {
+				this->children[i]->printInorder();
+			}
+			cout << "." << entries[i]->getKey() << ".";
+		}
+		if(!isLeaf()) {
+			this->children[size]->printInorder();
+		}
+		cout << "]";
 	}
 };
 
