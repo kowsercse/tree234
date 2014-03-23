@@ -45,10 +45,6 @@ class Node {
 	Entry* entries[MAX_SIZE];
 	int size;
 
-	Node() {
-		parent = NULL;
-		size = 0;
-	}
 	bool exists(Entry* entry) {
 		for (int i = 0; i < size; i++) {
 			if (entries[i]->compareTo(entry) == 0) {
@@ -78,14 +74,18 @@ class Node {
 		}
 		size = 3;
 	}
-
-public:
-	Node(Entry* entry) {
-		parent = NULL;
-		size = 0;
-
+	void init(Node* parent, Entry* entry) {
+		this->parent = parent;
 		entries[0] = entry;
 		size = 1;
+	}
+
+public:
+	Node(Node* parent, Entry* entry) {
+		init(parent, entry);
+	}
+	Node(Entry* entry) {
+		init(NULL, entry);
 	}
 	bool contains(Entry* entry) {
 		for (int i = 0; i < 4; i++) {
@@ -98,9 +98,15 @@ public:
 	void printInorder() {
 		cout << "[";
 		for (int i = 0; i < size; i++) {
-			cout << entries[i]->getKey();
+			if(!isLeaf()) {
+				this->children[i]->printInorder();
+			}
+			cout << "." << entries[i]->getKey() << ".";
 		}
-		cout << "]" << endl;
+		if(!isLeaf()) {
+			this->children[size]->printInorder();
+		}
+		cout << "]";
 	}
 	bool isLeaf() {
 		return children[0] == NULL;
@@ -112,13 +118,35 @@ public:
 		if (isLeaf()) {
 			return NULL;
 		}
-		for (int i = 0; i <= size; i++) {
+		for (int i = 0; i < size; i++) {
+			if (entries[i]->compareTo(entry) > 0) {
+				return children[i];
+			}
 		}
-		return NULL;
+		return children[size];
 	}
 	void split() {
-	}
+		Node* left = new Node(this, entries[0]);
+		Node* right = new Node(this, entries[2]);
+		if(!isLeaf()) {
+			left->children[0] = children[0];
+			left->children[1] = children[1];
+			right->children[0] = children[2];
+			right->children[1] = children[1];
 
+			for(int i=0; i<= size; i++) {
+				children[i] = NULL;
+			}
+		}
+		this->children[0] = left;
+		this->children[1] = right;
+		Entry* middle = this->entries[1];
+		for(int i=0; i< size; i++) {
+			this->entries[i] = NULL;
+		}
+		this->entries[0] = middle;
+		this->size = 1;
+    }
 	void insert(Entry* entry) {
 		if (exists(entry)) {
 			return;
@@ -130,6 +158,11 @@ public:
 			putThird(entry);
 		} else if (size == 3) {
 			split();
+			Node* current = this;
+			while (!current->isLeaf()) {
+				current = current->descend(entry);
+			}
+			current->insert(entry);
 		}
 	}
 
@@ -168,12 +201,13 @@ public:
 int main() {
 	int values[] = { 3, 7, 4, 9, 10, 0, 5, 6, 8, 2, 1, -3, -8, -5 };
 	Tree* tree = new Tree();
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 7; i++) {
 		int key = values[i];
 		Entry* entry = new Entry(key, key);
 		cout << entry->getKey() << ends;
 		tree->insert(entry);
 		tree->print();
+		cout << endl;
 	}
 
 	return 0;
