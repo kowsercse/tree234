@@ -10,7 +10,7 @@
 
 using namespace std;
 
-#define MAX_SIZE = 3
+const int MAX_SIZE = 3;
 
 class Entry {
 	int key;
@@ -25,8 +25,8 @@ public:
 		this->key = key;
 		this->value = value;
 	}
-	bool compareTo(Entry* entry) {
-		return value - entry->value;
+	int compareTo(Entry* entry) {
+		return key - entry->key;
 	}
 	bool equals(Entry* other) {
 		if (other == NULL) {
@@ -41,13 +41,11 @@ public:
 
 class Node {
 	Node* parent;
-	Node** children;
-	Entry** entries;
+	Node* children[MAX_SIZE + 1];
+	Entry* entries[MAX_SIZE];
 	int size;
 
 	Node() {
-		children = new Node*[3];
-		entries = new Entry*[4];
 		parent = NULL;
 		size = 0;
 	}
@@ -72,8 +70,7 @@ class Node {
 		if (entries[0]->compareTo(entry) > 0) {
 			entries[2] = entries[1];
 			entries[1] = entries[0];
-		}
-		if (entries[1]->compareTo(entry) < 0) {
+		} else if (entries[1]->compareTo(entry) < 0) {
 			entries[2] = entry;
 		} else {
 			entries[2] = entries[1];
@@ -84,8 +81,6 @@ class Node {
 
 public:
 	Node(Entry* entry) {
-		children = new Node*[3];
-		entries = new Entry*[4];
 		parent = NULL;
 		size = 0;
 
@@ -105,10 +100,10 @@ public:
 		for (int i = 0; i < size; i++) {
 			cout << entries[i]->getKey();
 		}
-		cout << "]";
+		cout << "]" << endl;
 	}
 	bool isLeaf() {
-		return children[0] != NULL;
+		return children[0] == NULL;
 	}
 	Node* getParent() {
 		return parent;
@@ -125,7 +120,6 @@ public:
 	}
 
 	void insert(Entry* entry) {
-		cout << "sdfa";
 		if (exists(entry)) {
 			return;
 		}
@@ -155,7 +149,6 @@ public:
 		root = NULL;
 	}
 	void insert(Entry* entry) {
-		cout << "wrong";
 		if (root == NULL) {
 			root = new Node(entry);
 		}
@@ -173,19 +166,14 @@ public:
 };
 
 int main() {
-	cout << "Fun";
 	int values[] = { 3, 7, 4, 9, 10, 0, 5, 6, 8, 2, 1, -3, -8, -5 };
-	Tree tree;// = new Tree();
+	Tree* tree = new Tree();
 	for (int i = 0; i < 3; i++) {
 		int key = values[i];
-//		Entry* entry = new Entry(key, key);
-		Entry entry(key, key);
-		Entry* e = &entry;
-		cout << entry.getKey() << e << endl;
-
-
-//		tree.insert(&entry);
-//		tree->print();
+		Entry* entry = new Entry(key, key);
+		cout << entry->getKey() << ends;
+		tree->insert(entry);
+		tree->print();
 	}
 
 	return 0;
