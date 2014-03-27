@@ -118,21 +118,17 @@ public:
 		this->size = 1;
     }
 	void insert(Entry* entry) {
-		if (exists(entry)) {
-			return;
+		Node* descend = this->descend(entry);
+		if(descend != NULL) {
+			descend->insert(entry);
 		}
-
-		if (size == 1) {
+		else if (size == 1) {
 			putSecond(entry);
 		} else if (size == 2) {
 			putThird(entry);
 		} else if (size == 3) {
-			split();
-			Node* current = this;
-			while (!current->isLeaf()) {
-				current = current->descend(entry);
-			}
-			current->insert(entry);
+			this->split();
+			this->insert(entry);
 		}
 	}
 
@@ -185,13 +181,9 @@ public:
 		if (root == NULL) {
 			root = new Node(entry);
 		}
-
-		Node* current = root;
-		while (!current->isLeaf()) {
-			current = current->descend(entry);
+		else {
+			root->insert(entry);
 		}
-
-		current->insert(entry);
 	}
 	void print() {
 		root->printInorder();
