@@ -66,6 +66,7 @@ class Node {
 		if (entries[0]->compareTo(entry) > 0) {
 			entries[2] = entries[1];
 			entries[1] = entries[0];
+			entries[0] = entry;
 		} else if (entries[1]->compareTo(entry) < 0) {
 			entries[2] = entry;
 		} else {
@@ -193,7 +194,7 @@ public:
 int main() {
 	int values[] = { 3, 7, 4, 9, 10, 0, 5, 6, 8, 2, 1, -3, -8, -5 };
 	Tree* tree = new Tree();
-	for (int i = 0; i < 7; i++) {
+	for (int i = 0; i < 14; i++) {
 		int key = values[i];
 		Entry* entry = new Entry(key, key);
 		cout << entry->getKey() << ends;
