@@ -33,28 +33,25 @@ public:
 };
 
 class Node {
-	Node* parent;
 	Node* children[MAX_SIZE + 1];
 	Entry* entries[MAX_SIZE];
 	int size;
 
-//	bool exists(Entry* entry) {
-//		for (int i = 0; i < size; i++) {
-//			if (entries[i]->compareTo(entry) == 0) {
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
-	bool contains(Entry* entry) {
-		for (int i = 0; i < 4; i++) {
-			if (entries[4]->equals(entry)) {
+	bool exists(Entry* entry) {
+		for (int i = 0; i < size; i++) {
+			if (entries[i]->getKey() == entry->getKey()) {
 				return true;
 			}
 		}
 		return false;
 	}
-
+	void init(Node* parent, Entry* entry) {
+		this->parent = parent;
+		if (entry != NULL) {
+			entries[0] = entry;
+			size = 1;
+		}
+	}
 	int findInsertPosition(Entry* entry) {
 		int i = 0;
 		while (i < size && entries[i]->getKey() < entry->getKey()) {
@@ -62,56 +59,59 @@ class Node {
 		}
 		return i;
 	}
+	void promote(Entry* middle, Node* left, Node* right) {
+		if (this->isFull()) {
+			cout << "Can't handle" << endl;
+		} else {
+			left->parent = this;
+			right->parent = this;
+			int insertPosition = findInsertPosition(middle);
+			for (int j = insertPosition; j < size; j++) {
+				entries[j + 1] = entries[j];
+				children[j + 2] = children[j + 1];
+			}
+			this->children[insertPosition] = left;
+			this->children[insertPosition + 1] = right;
 
-	void pushLeftFromPosition(int i) {
-		for (int j = i; j < size; j++) {
-			entries[j + 1] = entries[j];
+			entries[insertPosition] = middle;
+			size++;
 		}
 	}
 
 public:
+	Node* parent;
 	Node() {
-		size = 0;
-		parent = NULL;
+		init(NULL, NULL);
+	}
+	Node(Entry* entry) {
+		init(NULL, entry);
 	}
 	Node(Node* parent, Entry* entry) {
-		this->parent = parent;
-		entries[0] = entry;
-		size = 1;
+		init(parent, entry);
 	}
-	void split() {
-		Node* left = new Node(this, entries[0]);
-		Node* right = new Node(this, entries[2]);
-		if (!isLeaf()) {
+	void insert(Entry* entry) {
+		if (this->isFull()) {
+			Entry* middle = this->entries[1];
+			Node* left = new Node(entries[0]);
+			Node* right = new Node(entries[2]);
+
 			left->children[0] = children[0];
 			left->children[1] = children[1];
 			right->children[0] = children[2];
 			right->children[1] = children[1];
 
-			for (int i = 0; i <= size; i++) {
-				children[i] = NULL;
+			Node* node = middle->getKey() > entry->getKey() ? left : right;
+			node->insert(entry);
+
+			if (this->parent == NULL) {
+				this->parent = new Node();
 			}
-		}
-		this->children[0] = left;
-		this->children[1] = right;
-		Entry* middle = this->entries[1];
-		for (int i = 0; i < size; i++) {
-			this->entries[i] = NULL;
-		}
-		this->entries[0] = middle;
-		this->size = 1;
-	}
-	void insert(Entry* entry) {
-		if (this->isFull()) {
-			split();
-			Node* current = this;
-			while (!current->isLeaf()) {
-				current = current->descend(entry);
-			}
-			current->insert(entry);
+			this->parent->promote(middle, left, right);
 		} else {
 			int insertPosition = findInsertPosition(entry);
-			pushLeftFromPosition(insertPosition);
+			for (int j = insertPosition; j < size; j++) {
+				entries[j + 1] = entries[j];
+			}
 			entries[insertPosition] = entry;
 			size++;
 		}
@@ -125,9 +125,6 @@ public:
 	}
 	bool isLeaf() {
 		return children[0] == NULL;
-	}
-	Node* getParent() {
-		return parent;
 	}
 	Node* descend(Entry* entry) {
 		if (isLeaf()) {
@@ -173,6 +170,9 @@ public:
 		}
 
 		current->insert(entry);
+		if (root->parent != NULL) {
+			root = root->parent;
+		}
 	}
 	void print() {
 		root->printInorder();
@@ -182,7 +182,7 @@ public:
 int main() {
 	int values[] = { 3, 7, 4, 9, 10, 0, 5, 6, 8, 2, 1, -3, -8, -5 };
 	Tree* tree = new Tree();
-	for (int i = 0; i < 14; i++) {
+	for (int i = 0; i < 11; i++) {
 		int key = values[i];
 		Entry* entry = new Entry(key, key);
 		cout << entry->getKey() << ends;
