@@ -61,21 +61,42 @@ class Node {
 	}
 	void promote(Entry* middle, Node* left, Node* right) {
 		if (this->isFull()) {
-			cout << "Can't handle" << endl;
+			Entry* middleTree = this->entries[1];
+			Node* leftTree = new Node(entries[0]);
+			Node* rightTree = new Node(entries[2]);
+
+			leftTree->children[0] = children[0];
+			leftTree->children[1] = children[1];
+			rightTree->children[0] = children[2];
+			rightTree->children[1] = children[3];
+
+			Node* node = middleTree->getKey() > middle->getKey() ? leftTree : rightTree;
+			node->promote(middle, left, right);
+
+			if (this->parent == NULL) {
+				this->parent = new Node();
+			}
+			this->parent->promote(middleTree, leftTree, rightTree);
 		} else {
+			int insertPosition = findInsertPosition(middle);
 			left->parent = this;
 			right->parent = this;
-			int insertPosition = findInsertPosition(middle);
 			for (int j = insertPosition; j < size; j++) {
-				entries[j + 1] = entries[j];
 				children[j + 2] = children[j + 1];
 			}
 			this->children[insertPosition] = left;
 			this->children[insertPosition + 1] = right;
 
-			entries[insertPosition] = middle;
-			size++;
+			put(insertPosition, middle);
 		}
+	}
+
+	void put(int insertPosition, Entry* entry) {
+		for (int j = insertPosition; j < size; j++) {
+			entries[j + 1] = entries[j];
+		}
+		entries[insertPosition] = entry;
+		size++;
 	}
 
 public:
@@ -98,7 +119,7 @@ public:
 			left->children[0] = children[0];
 			left->children[1] = children[1];
 			right->children[0] = children[2];
-			right->children[1] = children[1];
+			right->children[1] = children[3];
 
 			Node* node = middle->getKey() > entry->getKey() ? left : right;
 			node->insert(entry);
@@ -109,11 +130,7 @@ public:
 			this->parent->promote(middle, left, right);
 		} else {
 			int insertPosition = findInsertPosition(entry);
-			for (int j = insertPosition; j < size; j++) {
-				entries[j + 1] = entries[j];
-			}
-			entries[insertPosition] = entry;
-			size++;
+			put(insertPosition, entry);
 		}
 	}
 
@@ -176,20 +193,21 @@ public:
 	}
 	void print() {
 		root->printInorder();
+		cout << endl;
 	}
 };
 
 int main() {
 	int values[] = { 3, 7, 4, 9, 10, 0, 5, 6, 8, 2, 1, -3, -8, -5 };
 	Tree* tree = new Tree();
-	for (int i = 0; i < 11; i++) {
+	for (int i = 0; i < 14; i++) {
 		int key = values[i];
 		Entry* entry = new Entry(key, key);
-		cout << entry->getKey() << ends;
+		cout << entry->getKey() << endl;
 		tree->insert(entry);
 		tree->print();
-		cout << endl;
 	}
+	tree->print();
 
 	return 0;
 }
