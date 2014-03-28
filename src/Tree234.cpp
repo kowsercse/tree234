@@ -81,8 +81,8 @@ class Node {
 			int insertPosition = findInsertPosition(middle);
 			left->parent = this;
 			right->parent = this;
-			for (int j = insertPosition; j < size; j++) {
-				children[j + 2] = children[j + 1];
+			for (int j = size; j> insertPosition; j--) {
+				children[j + 1] = children[j];
 			}
 			this->children[insertPosition] = left;
 			this->children[insertPosition + 1] = right;
@@ -92,8 +92,8 @@ class Node {
 	}
 
 	void put(int insertPosition, Entry* entry) {
-		for (int j = insertPosition; j < size; j++) {
-			entries[j + 1] = entries[j];
+		for (int j = size; j > insertPosition; j--) {
+			entries[j] = entries[j - 1];
 		}
 		entries[insertPosition] = entry;
 		size++;
