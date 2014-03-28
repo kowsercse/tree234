@@ -37,14 +37,6 @@ class Node {
 	Entry* entries[MAX_SIZE];
 	int size;
 
-	bool exists(Entry* entry) {
-		for (int i = 0; i < size; i++) {
-			if (entries[i]->getKey() == entry->getKey()) {
-				return true;
-			}
-		}
-		return false;
-	}
 	void init(Node* parent, Entry* entry) {
 		this->parent = parent;
 		if (entry != NULL) {
